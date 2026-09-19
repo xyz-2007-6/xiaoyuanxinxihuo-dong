@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新生校园活动广场 · 竞赛 / 讲座 / 团队招募 / 志愿活动</title>
+    <meta name="description" content="面向大学新生的校园活动信息展示平台：竞赛、讲座、团队招募、志愿活动一网打尽，支持在线报名与自主发布活动。">
+    <style>
+    /* ==========================================================
+       新生校园活动广场 · 样式表（内联，单文件直接双击运行）
+       纯原生 CSS：CSS 变量主题 + Grid/Flex 布局 + 响应式适配
+       ========================================================== */
+
+    /* ---------- 主题变量 ---------- */
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --primary-soft: #eef2ff;
+        --open: #059669;
+        --closed: #9ca3af;
+        --danger: #dc2626;
+        --warning: #d97706;
+        --text-main: #1f2937;
+        --text-sub: #6b7280;
+        --text-light: #9ca3af;
+        --bg-page: #f7f8fc;
+        --bg-card: #ffffff;
+        --border: #e8eaf2;
+        --shadow-sm: 0 2px 8px rgba(31, 41, 55, .06);
+        --shadow-md: 0 8px 24px rgba(31, 41, 55, .10);
+        --shadow-lg: 0 20px 48px rgba(31, 41, 55, .18);
+        --radius: 16px;
+        --radius-sm: 10px;
+        --header-h: 64px;
+    }
+
+    /* 四个分类的主题色（卡片通过 cat-xxx class 切换） */
+    .cat-competition { --cat-color: #2563eb; --cat-soft: #eff6ff; }
+    .cat-lecture     { --cat-color: #7c3aed; --cat-soft: #f5f3ff; }
+    .cat-project     { --cat-color: #0d9488; --cat-soft: #f0fdfa; }
+    .cat-volunteer   { --cat-color: #ea580c; --cat-soft: #fff7ed; }
+
+    /* ---------- 基础重置 ---------- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+        font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB",
+                     -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text-main);
+        background: var(--bg-page);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    input, select, textarea { font-family: inherit; font-size: 15px; }
+
+    .container { width: min(1180px, 92%); margin: 0 auto; }
+
+    /* ---------- 通用按钮（含点击反馈） ---------- */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 20px;
+        border-radius: 999px;
+        font-size: 15px;
+        font-weight: 600;
+        transition: transform .15s ease, box-shadow .15s ease, background .15s ease, opacity .15s ease;
+        white-space: nowrap;
+        border: 1.5px solid transparent;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: scale(.95); }
+    .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 6px 16px rgba(79, 70, 229, .28); }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-ghost { background: #fff; color: var(--primary); border-color: var(--primary); }
+    .btn-ghost:hover { background: var(--primary-soft); }
+    .btn-light { background: #fff; color: var(--primary); box-shadow: var(--shadow-sm); }
+    .btn-light:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .btn-lg { padding: 13px 28px; font-size: 16px; }
+    .btn-sm { padding: 7px 16px; font-size: 14px; }
+    .btn[disabled] { background: var(--closed) !important; color: #fff !important; cursor: not-allowed; box-shadow: none; opacity: .85; transform: none; }
+
+    .link-btn { color: var(--primary); background: none; border: none; text-decoration: underline; font-size: inherit; }
+    .link-btn:active { opacity: .6; }
+
+    /* ---------- 顶部导航 ---------- */
+    .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(255, 255, 255, .88);
+        backdrop-filter: saturate(180%) blur(12px);
+        border-bottom: 1px solid var(--border);
+    }
+    .header-inner { height: var(--header-h); display: flex; align-items: center; gap: 24px; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-logo {
+        width: 40px; height: 40px;
+        display: grid; place-items: center;
+        font-size: 22px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, .35);
+    }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-text strong { font-size: 17px; }
+    .brand-text small { font-size: 11px; color: var(--text-light); letter-spacing: .5px; }
+    .site-nav { display: flex; gap: 26px; margin-left: auto; }
+    .site-nav a { font-size: 15px; font-weight: 500; color: var(--text-sub); position: relative; padding: 4px 0; }
+    .site-nav a::after {
+        content: ""; position: absolute; left: 0; bottom: -2px;
+        width: 0; height: 2px; background: var(--primary); border-radius: 2px;
+        transition: width .2s ease;
+    }
+    .site-nav a:hover { color: var(--primary); }
+    .site-nav a:hover::after { width: 100%; }
+    .header-publish { margin-left: 4px; }
+
+    /* ---------- Hero 横幅 ---------- */
+    .hero {
+        background:
+            radial-gradient(1200px 400px at 85% -10%, rgba(139, 92, 246, .25), transparent 60%),
+            radial-gradient(900px 380px at 0% 0%, rgba(79, 70, 229, .20), transparent 55%),
+            linear-gradient(135deg, #4f46e5 0%, #6d28d9 55%, #7c3aed 100%);
+        color: #fff;
+        padding: 64px 0 76px;
+    }
+    .hero-inner { display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: center; }
+    .hero-tag {
+        display: inline-block; padding: 5px 14px; border-radius: 999px;
+        background: rgba(255, 255, 255, .16); font-size: 13px; margin-bottom: 18px;
+    }
+    .hero-copy h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.25; margin-bottom: 16px; }
+    .hero-copy h1 span {
+        background: linear-gradient(90deg, #fde68a, #fca5a5);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .hero-copy p { opacity: .9; margin-bottom: 28px; font-size: 16px; }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-actions .btn-ghost { background: rgba(255, 255, 255, .12); color: #fff; border-color: rgba(255, 255, 255, .55); }
+    .hero-actions .btn-ghost:hover { background: rgba(255, 255, 255, .22); }
+
+    .hero-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .stat-card {
+        background: rgba(255, 255, 255, .13);
+        border: 1px solid rgba(255, 255, 255, .22);
+        border-radius: var(--radius);
+        padding: 20px 18px;
+        transition: transform .2s ease, background .2s ease;
+    }
+    .stat-card:hover { transform: translateY(-4px); background: rgba(255, 255, 255, .2); }
+    .stat-card .stat-num { font-size: 30px; font-weight: 800; line-height: 1.1; }
+    .stat-card .stat-label { font-size: 13px; opacity: .85; margin-top: 4px; }
+
+    /* ---------- 区块标题 / 工具栏 ---------- */
+    .section { padding: 56px 0 24px; }
+    .section-head { margin-bottom: 24px; }
+    .section-head h2 { font-size: 26px; margin-bottom: 6px; }
+    .section-head p { color: var(--text-sub); font-size: 15px; }
+    .text-open { color: var(--open); }
+    .text-closed { color: var(--closed); }
+
+    .toolbar { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .search-box {
+        flex: 1 1 280px;
+        display: flex; align-items: center; gap: 8px;
+        background: #fff; border: 1.5px solid var(--border); border-radius: 999px;
+        padding: 9px 18px;
+        transition: border-color .15s, box-shadow .15s;
+    }
+    .search-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, .12); }
+    .search-box input { flex: 1; border: none; outline: none; background: transparent; font-size: 15px; }
+    .search-box input::-webkit-search-cancel-button { cursor: pointer; }
+
+    .filter-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-btn {
+        padding: 8px 18px; border-radius: 999px; font-size: 14px; font-weight: 600;
+        color: var(--text-sub); background: #fff; border: 1.5px solid var(--border);
+        transition: all .15s ease;
+    }
+    .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-btn:active { transform: scale(.95); }
+    .filter-btn.active {
+        background: var(--primary); border-color: var(--primary); color: #fff;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, .25);
+    }
+    .filter-btn .count { margin-left: 5px; font-size: 12px; opacity: .75; }
+
+    /* 分类筛选条（全部/竞赛/讲座/团队招募/志愿活动，由 JS 渲染） */
+    .category-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .cat-chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 7px 16px; border-radius: 999px; font-size: 14px; font-weight: 500;
+        background: #fff; border: 1.5px solid var(--border); color: var(--text-sub);
+        transition: all .15s ease;
+    }
+    .cat-chip:hover { transform: translateY(-1px); }
+    .cat-chip:active { transform: scale(.95); }
+    .cat-chip.active { color: var(--cat-color); border-color: var(--cat-color); background: var(--cat-soft); font-weight: 700; }
+
+    .sort-bar { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-sub); margin-bottom: 22px; }
+    .sort-bar select {
+        padding: 7px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+        background: #fff; color: var(--text-main); outline: none; cursor: pointer;
+    }
+    .sort-bar select:focus { border-color: var(--primary); }
+    .result-count { margin-left: auto; color: var(--text-light); }
+
+    /* ---------- 活动卡片网格 ---------- */
+    .activity-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 22px;
+        padding-bottom: 40px;
+    }
+    .activity-card {
+        background: var(--bg-card);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        transition: transform .2s ease, box-shadow .2s ease, opacity .3s ease;
+        animation: cardIn .35s ease;
+    }
+    .activity-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+    @keyframes cardIn {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 已截止卡片：整体置灰并降低不透明度（跳过入场动画，避免动画值覆盖置灰透明度） */
+    .activity-card.is-closed { animation: none; opacity: .55; }
+    .activity-card.is-closed .card-cover { filter: grayscale(.9); }
+    .activity-card.is-closed:hover { transform: none; box-shadow: var(--shadow-sm); }
+
+    /* 卡片封面：纯 CSS 渐变 + emoji，不依赖任何外部图片 */
+    .card-cover {
+        position: relative;
+        height: 132px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 52px;
+        background:
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, .35), transparent 45%),
+            linear-gradient(135deg, var(--cat-color), color-mix(in srgb, var(--cat-color) 55%, #7c3aed));
+        transition: filter .3s ease;
+    }
+    .card-cover::after {
+        content: "";
+        position: absolute; inset: 0;
+        background: repeating-linear-gradient(-45deg, rgba(255,255,255,.06) 0 12px, transparent 12px 24px);
+    }
+    .card-cover .cover-icon { position: relative; z-index: 1; filter: drop-shadow(0 4px 8px rgba(0,0,0,.18)); }
+    .card-badges { position: absolute; top: 12px; left: 12px; display: flex; gap: 8px; z-index: 2; }
+
+    .badge {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 3px 11px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    }
+    .badge-category { background: rgba(255,255,255,.9); color: var(--cat-color); }
+    .badge-open { background: rgba(236, 253, 245, .95); color: var(--open); }
+    .badge-closed { background: rgba(243, 244, 246, .95); color: #6b7280; }
+    .badge-direct { background: rgba(254, 243, 199, .95); color: var(--warning); }
+    .badge-ended { background: rgba(254, 226, 226, .95); color: var(--danger); }
+    .badge-user { background: rgba(79, 70, 229, .9); color: #fff; }
+    .badge-joined { background: rgba(5, 150, 105, .92); color: #fff; }
+
+    .card-body { padding: 18px 18px 16px; display: flex; flex-direction: column; flex: 1; }
+    .card-title {
+        font-size: 17px; font-weight: 700; line-height: 1.45; margin-bottom: 10px;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        min-height: 49px;
+    }
+    .activity-card.is-closed .card-title { color: var(--text-sub); }
+
+    .card-meta { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .card-meta li { display: flex; align-items: flex-start; gap: 7px; font-size: 13.5px; color: var(--text-sub); }
+    .card-meta .meta-icon { flex: 0 0 auto; }
+
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .card-tags .tag {
+        font-size: 12px; padding: 2px 10px; border-radius: 999px;
+        background: var(--cat-soft); color: var(--cat-color); font-weight: 500;
+    }
+
+    /* 卡片底部：倒计时独占一行（每秒跳动），下方为人数 + 操作按钮 */
+    .card-footer {
+        margin-top: auto;
+        display: flex; flex-direction: column; gap: 8px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--border);
+    }
+    .footer-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .signup-meta { font-size: 12.5px; color: var(--text-light); }
+    .countdown-line { font-size: 12.5px; line-height: 1.5; }
+    .countdown { font-weight: 700; color: var(--warning); font-variant-numeric: tabular-nums; }
+    .countdown.is-urgent { color: var(--danger); }
+    .countdown.is-closed { color: var(--closed); font-weight: 600; }
+
+    .card-actions { display: flex; gap: 8px; }
+    .btn-detail {
+        padding: 8px 16px; border-radius: 999px; font-size: 13.5px; font-weight: 600;
+        color: var(--primary); background: var(--primary-soft);
+        transition: background .15s, transform .15s;
+    }
+    .btn-detail:hover { background: #e0e7ff; }
+    .btn-detail:active { transform: scale(.94); }
+    .btn-signup {
+        padding: 8px 18px; border-radius: 999px; font-size: 13.5px; font-weight: 700;
+        color: #fff; background: var(--open);
+        transition: background .15s, transform .15s;
+    }
+    .btn-signup:hover { background: #047857; }
+    .btn-signup:active { transform: scale(.94); }
+    .btn-signup.is-joined { background: #fff; color: var(--danger); border: 1.5px solid #fecaca; }
+    .btn-signup.is-joined:hover { background: #fef2f2; }
+    .btn-signup.btn-direct { background: var(--warning); }
+    .btn-signup.btn-direct:hover { background: #b45309; }
+
+    /* ---------- 空状态 ---------- */
+    .empty-state {
+        text-align: center;
+        padding: 70px 20px 90px;
+        background: #fff;
+        border: 1.5px dashed var(--border);
+        border-radius: var(--radius);
+    }
+    .empty-icon { font-size: 54px; margin-bottom: 12px; }
+    .empty-state h3 { margin-bottom: 8px; }
+    .empty-state p { color: var(--text-sub); margin-bottom: 20px; }
+
+    /* ---------- 发布引导 CTA ---------- */
+    .publish-cta {
+        background: linear-gradient(120deg, #ecfeff, #eef2ff 55%, #faf5ff);
+        padding: 30px 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+    }
+    .cta-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .cta-copy h2 { font-size: 21px; margin-bottom: 6px; }
+    .cta-copy p { color: var(--text-sub); font-size: 14.5px; }
+
+    /* ---------- 页脚 ---------- */
+    .site-footer { background: #111827; color: #9ca3af; padding: 26px 0; margin-top: 30px; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; font-size: 13.5px; }
+    .site-footer .link-btn { color: #a5b4fc; }
+
+    /* ---------- 弹窗 ---------- */
+    .modal-mask {
+        position: fixed; inset: 0; z-index: 1000;
+        background: rgba(17, 24, 39, .55);
+        backdrop-filter: blur(3px);
+        display: grid; place-items: center;
+        padding: 20px;
+        animation: maskIn .2s ease;
+    }
+    @keyframes maskIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal {
+        position: relative;
+        background: #fff;
+        border-radius: 20px;
+        width: min(640px, 100%);
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: var(--shadow-lg);
+        animation: modalIn .25s cubic-bezier(.2, .8, .3, 1.1);
+    }
+    @keyframes modalIn {
+        from { opacity: 0; transform: translateY(24px) scale(.97); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-close {
+        position: absolute; top: 14px; right: 14px; z-index: 5;
+        width: 34px; height: 34px; border-radius: 50%;
+        background: rgba(255, 255, 255, .85); color: var(--text-sub); font-size: 14px;
+        display: grid; place-items: center;
+        box-shadow: 0 2px 8px rgba(31, 41, 55, .12);
+        transition: background .15s, transform .15s;
+    }
+    .modal-close:hover { background: #fff; transform: rotate(90deg); }
+    .modal-close:active { transform: rotate(90deg) scale(.9); }
+    .modal-body { padding: 26px 28px 28px; }
+    .modal-body > h3 { font-size: 21px; margin-bottom: 4px; }
+
+    .detail-cover {
+        height: 150px;
+        display: grid; place-items: center;
+        position: relative;
+        background:
+            radial-gradient(circle at 75% 25%, rgba(255,255,255,.35), transparent 45%),
+            linear-gradient(135deg, var(--cat-color), color-mix(in srgb, var(--cat-color) 55%, #7c3aed));
+    }
+    .detail-cover-icon { font-size: 60px; filter: drop-shadow(0 4px 10px rgba(0,0,0,.2)); }
+
+    .detail-meta {
+        list-style: none;
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 10px 18px;
+        margin: 18px 0;
+    }
+    .detail-meta li { display: flex; gap: 8px; font-size: 14px; color: var(--text-sub); }
+    .detail-meta li.full { grid-column: 1 / -1; }
+    .detail-meta strong { color: var(--text-main); font-weight: 600; }
+
+    .detail-section { margin-top: 16px; }
+    .detail-section h4 {
+        font-size: 14px; color: var(--primary); margin-bottom: 8px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .detail-section h4::before { content: ""; width: 4px; height: 15px; background: var(--primary); border-radius: 2px; }
+    .detail-section p { font-size: 14.5px; color: #374151; white-space: pre-wrap; word-break: break-word; }
+    .detail-highlights { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .detail-highlights li { position: relative; padding-left: 20px; font-size: 14px; color: #374151; }
+    .detail-highlights li::before {
+        content: "✦"; position: absolute; left: 0; color: var(--cat-color); font-size: 12px; top: 3px;
+    }
+
+    .detail-footer {
+        margin-top: 24px; padding-top: 18px;
+        border-top: 1px dashed var(--border);
+        display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    }
+    .detail-signup-info { display: flex; flex-direction: column; gap: 3px; font-size: 13.5px; color: var(--text-sub); }
+    .detail-signup-info .signup-count { font-weight: 700; color: var(--text-main); font-size: 15px; }
+    .detail-signup-info .countdown { font-size: 13.5px; }
+
+    /* ---------- 发布表单（5 个字段） ---------- */
+    .form-tip { font-size: 13px; color: var(--text-light); margin-bottom: 18px; }
+    .form-tip em, .form-row label em { color: var(--danger); font-style: normal; }
+    .form-row { margin-bottom: 16px; }
+    .form-row label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .form-row input[type="text"],
+    .form-row input[type="datetime-local"],
+    .form-row select,
+    .form-row textarea {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: #fff;
+        outline: none;
+        color: var(--text-main);
+        transition: border-color .15s, box-shadow .15s;
+    }
+    .form-row textarea { resize: vertical; min-height: 96px; }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, .12);
+    }
+    .form-row.has-error input,
+    .form-row.has-error select,
+    .form-row.has-error textarea { border-color: var(--danger); }
+    .form-row.has-error input:focus,
+    .form-row.has-error select:focus,
+    .form-row.has-error textarea:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, .12); }
+    .field-error { display: block; color: var(--danger); font-size: 12.5px; margin-top: 4px; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 22px; }
+
+    /* ---------- Toast 提示 ---------- */
+    .toast {
+        position: fixed;
+        left: 50%; bottom: 36px;
+        transform: translateX(-50%) translateY(20px);
+        z-index: 2000;
+        background: #1f2937; color: #fff;
+        padding: 12px 24px;
+        border-radius: 999px;
+        font-size: 14.5px;
+        box-shadow: var(--shadow-lg);
+        opacity: 0;
+        transition: opacity .25s ease, transform .25s ease;
+        pointer-events: none;
+        max-width: 88vw;
+        text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.toast-success { background: var(--open); }
+    .toast.toast-error { background: var(--danger); }
+
+    /* ---------- 响应式适配 ---------- */
+    @media (max-width: 900px) {
+        .hero-inner { grid-template-columns: 1fr; gap: 30px; }
+        .hero-stats { grid-template-columns: repeat(4, 1fr); }
+        .stat-card { padding: 14px 12px; text-align: center; }
+        .stat-card .stat-num { font-size: 24px; }
+    }
+    @media (max-width: 640px) {
+        .site-nav { display: none; }
+        .header-publish { margin-left: auto; }
+        .hero { padding: 44px 0 52px; }
+        .hero-stats { grid-template-columns: repeat(2, 1fr); }
+        .section { padding: 40px 0 16px; }
+        .activity-grid { grid-template-columns: 1fr; gap: 16px; }
+        .detail-meta { grid-template-columns: 1fr; }
+        .modal-body { padding: 22px 18px 24px; }
+        .filter-group { width: 100%; }
+        .filter-btn { flex: 1; text-align: center; padding: 8px 10px; }
+        .sort-bar { flex-wrap: wrap; }
+        .result-count { margin-left: 0; width: 100%; }
+        .cta-inner { flex-direction: column; align-items: flex-start; }
+    }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 顶部导航 ========== -->
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="brand" href="#top" aria-label="返回首页">
+                <span class="brand-logo" aria-hidden="true">🎓</span>
+                <span class="brand-text">
+                    <strong>新生活动广场</strong>
+                    <small>Campus Activity Hub</small>
+                </span>
+            </a>
+            <nav class="site-nav" aria-label="主导航">
+                <a href="#activities">活动大厅</a>
+                <a href="#publish-cta">发布活动</a>
+            </nav>
+            <button class="btn btn-primary btn-sm header-publish" id="headerPublishBtn" type="button">＋ 发布活动</button>
+        </div>
+    </header>
+
+    <main id="top">
+        <!-- ========== Hero 横幅 ========== -->
+        <section class="hero">
+            <div class="container hero-inner">
+                <div class="hero-copy">
+                    <span class="hero-tag">👋 欢迎新同学</span>
+                    <h1>发现你的<span>第一场校园活动</span></h1>
+                    <p>竞赛训练营、名师讲座、创新创业团队、公益志愿服务……<br>在这里找到同频的伙伴，让大学生活从热爱开始。</p>
+                    <div class="hero-actions">
+                        <a class="btn btn-primary btn-lg" href="#activities">浏览活动</a>
+                        <button class="btn btn-ghost btn-lg" id="heroPublishBtn" type="button">我要发布活动</button>
+                    </div>
+                </div>
+                <div class="hero-stats" id="heroStats" aria-live="polite">
+                    <!-- 统计数字由 JS 渲染 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== 活动大厅 ========== -->
+        <section class="section" id="activities">
+            <div class="container">
+                <div class="section-head">
+                    <h2>活动大厅</h2>
+                    <p>实时区分<strong class="text-open">可报名</strong>与<strong class="text-closed">已截止</strong>活动，不错过每个机会</p>
+                </div>
+
+                <!-- 搜索 + 状态筛选 -->
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span aria-hidden="true">🔍</span>
+                        <input type="search" id="searchInput" placeholder="搜索活动名称、简介或关键词…" aria-label="搜索活动">
+                    </div>
+                    <div class="filter-group" id="statusFilter" role="tablist" aria-label="按报名状态筛选">
+                        <!-- 状态筛选按钮由 JS 渲染 -->
+                    </div>
+                </div>
+
+                <!-- 分类筛选：全部 / 竞赛 / 讲座 / 团队招募 / 志愿活动 -->
+                <div class="category-bar" id="categoryFilter" aria-label="按活动分类筛选">
+                    <!-- 分类按钮由 JS 渲染 -->
+                </div>
+
+                <!-- 排序 -->
+                <div class="sort-bar">
+                    <label for="sortSelect">排序：</label>
+                    <select id="sortSelect">
+                        <option value="deadline">按报名截止时间（最紧迫优先）</option>
+                        <option value="time">按活动开始时间（最近优先）</option>
+                        <option value="hot">按报名人数（最热门优先）</option>
+                    </select>
+                    <span class="result-count" id="resultCount"></span>
+                </div>
+
+                <!-- 活动卡片网格 -->
+                <div class="activity-grid" id="activityGrid">
+                    <!-- 活动卡片由 JS 渲染 -->
+                </div>
+
+                <!-- 空状态 -->
+                <div class="empty-state" id="emptyState" hidden>
+                    <div class="empty-icon" aria-hidden="true">🗂️</div>
+                    <h3>没有找到符合条件的活动</h3>
+                    <p>换个关键词或筛选条件试试，也可以自己发布一个活动。</p>
+                    <button class="btn btn-primary" id="emptyPublishBtn" type="button">＋ 发布新活动</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== 发布活动引导 ========== -->
+        <section class="publish-cta" id="publish-cta">
+            <div class="container cta-inner">
+                <div class="cta-copy">
+                    <h2>社团 / 组织 / 同学，都能在这里发布活动</h2>
+                    <p>填写活动名称、类型、时间、报名截止时间与简介，发布后即刻展示在活动大厅。</p>
+                </div>
+                <button class="btn btn-light btn-lg" id="footerPublishBtn" type="button">＋ 立即发布活动</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========== 页脚 ========== -->
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <p>🎓 新生活动广场 · 纯前端单页面（HTML + CSS + JavaScript）</p>
+            <p>活动与报名数据仅保存在本机浏览器（localStorage），<button class="link-btn" id="resetBtn" type="button">恢复初始演示数据</button></p>
+        </div>
+    </footer>
+
+    <!-- ========== 活动详情弹窗 ========== -->
+    <div class="modal-mask" id="detailModal" hidden>
+        <div class="modal modal-detail" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+            <button class="modal-close" data-close="detailModal" type="button" aria-label="关闭详情">✕</button>
+            <div class="detail-cover" id="detailCover">
+                <span class="detail-cover-icon" id="detailIcon"></span>
+                <span class="detail-badge badge" id="detailBadge"></span>
+            </div>
+            <div class="modal-body">
+                <h3 id="detailTitle"></h3>
+                <ul class="detail-meta" id="detailMeta"></ul>
+                <div class="detail-section">
+                    <h4>活动简介</h4>
+                    <p id="detailDesc"></p>
+                </div>
+                <div class="detail-section" id="detailHighlightsWrap">
+                    <h4>活动亮点 / 备注</h4>
+                    <ul class="detail-highlights" id="detailHighlights"></ul>
+                </div>
+                <div class="detail-footer">
+                    <div class="detail-signup-info">
+                        <span class="signup-count" id="detailSignupCount"></span>
+                        <span class="countdown" id="detailCountdown"></span>
+                    </div>
+                    <button class="btn btn-primary btn-lg" id="detailActionBtn" type="button"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 发布活动弹窗（学生发布：5 个字段） ========== -->
+    <div class="modal-mask" id="publishModal" hidden>
+        <div class="modal modal-publish" role="dialog" aria-modal="true" aria-labelledby="publishFormTitle">
+            <!-- 右上角关闭按钮：JS 已直接绑定 click 关闭事件 -->
+            <button class="modal-close" id="publishModalClose" data-close="publishModal" type="button" aria-label="关闭发布窗口">✕</button>
+            <div class="modal-body">
+                <h3 id="publishFormTitle">发布新活动</h3>
+                <p class="form-tip">带 <em>*</em> 为必填项，所有信息均不能为空。</p>
+                <form id="publishForm" novalidate>
+                    <div class="form-row">
+                        <label for="fTitle">活动名称<em>*</em></label>
+                        <input type="text" id="fTitle" maxlength="40" placeholder="例如：校园歌手大赛报名">
+                        <small class="field-error" data-error-for="fTitle"></small>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="fType">活动类型<em>*</em></label>
+                        <select id="fType">
+                            <option value="">请选择活动类型</option>
+                            <option value="competition">竞赛</option>
+                            <option value="lecture">讲座</option>
+                            <option value="project">团队招募</option>
+                            <option value="volunteer">志愿活动</option>
+                        </select>
+                        <small class="field-error" data-error-for="fType"></small>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="fTime">活动时间<em>*</em></label>
+                        <input type="datetime-local" id="fTime">
+                        <small class="field-error" data-error-for="fTime"></small>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="fDeadline">报名截止时间<em>*</em></label>
+                        <input type="datetime-local" id="fDeadline">
+                        <small class="field-error" data-error-for="fDeadline"></small>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="fDesc">活动简介<em>*</em></label>
+                        <textarea id="fDesc" rows="4" maxlength="300" placeholder="简要介绍活动内容、收获与注意事项（最多300字）"></textarea>
+                        <small class="field-error" data-error-for="fDesc"></small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-ghost" type="button" data-close="publishModal">取消</button>
+                        <button class="btn btn-primary" type="submit">确认发布</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局提示 Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <script>
+    /* ==========================================================
+     * 新生校园活动广场 · 交互逻辑（内联，单文件直接双击运行）
+     * 纯原生 JavaScript（ES6+），无框架、无网络请求
+     * 数据策略：
+     *   - 首次打开时把 5 条内置活动整体写入 localStorage；
+     *   - 之后页面所有活动均从 localStorage 读取，
+     *     学生发布的活动与报名记录刷新后不会丢失。
+     * 倒计时策略：
+     *   - 全局 setInterval 每秒刷新一次卡片上的报名截止倒计时；
+     *   - 跨过截止时间的卡片自动整卡重渲染（置灰、按钮禁用）；
+     *   - 详情弹窗打开时其倒计时同样每秒同步。
+     * ========================================================== */
+    (function () {
+        'use strict';
+
+        /* ---------- 一、常量与初始数据 ---------- */
+
+        // 分类字典（对应需求：全部/竞赛/讲座/团队招募/志愿活动）
+        var CATEGORIES = {
+            competition: { name: '竞赛',     icon: '🏆' },
+            lecture:     { name: '讲座',     icon: '🎤' },
+            project:     { name: '团队招募', icon: '🚀' },
+            volunteer:   { name: '志愿活动', icon: '💚' }
+        };
+
+        // 报名状态：open 可报名 / direct 无需报名 / closed 已截止 / ended 已结束
+        var STATUS = {
+            open:   { name: '可报名',   cls: 'badge-open' },
+            direct: { name: '无需报名', cls: 'badge-direct' },
+            closed: { name: '已截止',   cls: 'badge-closed' },
+            ended:  { name: '已结束',   cls: 'badge-ended' }
+        };
+
+        // localStorage 键名
+        var LS_ACTIVITIES = 'campus_hub_activities_v2';   // 全部活动
+        var LS_STATE      = 'campus_hub_signup_state_v2'; // 报名人数 + 我的报名
+
+        // 5 条内置初始活动（年份 2026，与“今天 2026-09-19”对照实时计算状态）
+        var INITIAL_ACTIVITIES = [
+            {
+                id: 'init-1',
+                title: '“蓝桥杯”程序设计校内训练营',
+                category: 'competition',
+                location: '校内机房（开营前短信通知具体教室）',
+                startTime: '2026-09-20T19:00',
+                timeText: '9月20日起 每周六 19:00 训练',
+                mode: 'signup',
+                deadline: '2026-09-24T22:00',
+                audience: '全校学生（零基础可参加）',
+                signupCount: 186,
+                desc: '面向全校学生的“蓝桥杯”程序设计大赛备赛训练营，从零开始系统讲解算法基础与历年真题。每周六晚集中训练，配有学长学姐答疑与模拟赛，表现优异者可优先推荐进入校队。',
+                highlights: ['零基础友好，从语法与常见算法讲起', '每周六 19:00 固定训练，共 6 期', '配套真题讲解 + 模拟排位赛', '优秀学员优先入选校队'],
+                forceEnded: false
+            },
+            {
+                id: 'init-2',
+                title: 'AI 应用入门公开课',
+                category: 'lecture',
+                location: '计算机学院教学楼 A 座报告厅',
+                startTime: '2026-09-19T19:00',
+                timeText: null,
+                mode: 'direct',
+                deadline: null,
+                audience: '全校学生',
+                signupCount: 0,
+                desc: '一场面向所有专业新生的 AI 科普公开课：了解大模型能做什么、如何用 AI 工具辅助学习与科研，并现场演示零代码搭建自己的智能助手。无需报名，直接到场参加即可，预计时长 90 分钟。',
+                highlights: ['无需报名，凭学生证直接入场', '时长约 90 分钟，含现场演示', '不限专业，建议提前 10 分钟到场', '前 300 名可获 AI 学习资料包'],
+                forceEnded: false
+            },
+            {
+                id: 'init-3',
+                title: '大学生创新创业项目团队招募',
+                category: 'project',
+                location: '线上初筛 + 大学生活动中心 205 面试',
+                startTime: '2026-09-23T19:00',
+                timeText: '9月23日起组队开展，每周稳定推进',
+                mode: 'signup',
+                deadline: '2026-09-22T18:00',
+                audience: '全校学生，开发 / 设计 / 材料方向均可',
+                signupCount: 97,
+                desc: '校级大创项目正式招新！计划打造一款面向新生的校园服务小程序，现招募开发、UI 设计与文案材料成员。每周需要稳定投入 4 小时以上，报名时需提交一段简短自我介绍，报名后将安排简短面试。',
+                highlights: ['招募开发、设计、材料三类成员', '每周需稳定投入 4 小时以上', '报名须提交一段简短自我介绍', '项目结题可获创新创业学分认定'],
+                forceEnded: false
+            },
+            {
+                id: 'init-4',
+                title: '数学建模竞赛经验分享会',
+                category: 'lecture',
+                location: '线上直播（回放将上传至学院 B 站号）',
+                startTime: '2026-09-18T19:30',
+                timeText: null,
+                mode: 'direct',
+                deadline: null,
+                audience: '不限专业，对数模感兴趣的同学',
+                signupCount: 0,
+                desc: '由国赛获奖团队主讲的数学建模经验分享会，内容涵盖参赛流程、选题策略、论文写作与队友分工。本场直播已于 9 月 18 日 19:30 结束，预计 9 月 20 日上传回放，可先收藏活动以便回看。',
+                highlights: ['直播已结束，预计 9月20日 上传回放', '国赛一等奖团队亲述备赛经验', '不限专业，大一新生友好', '回放上线后可在本页查看更新'],
+                forceEnded: true
+            },
+            {
+                id: 'init-5',
+                title: '校园公益志愿服务活动',
+                category: 'volunteer',
+                location: '学校周边社区服务站（统一乘车前往）',
+                startTime: '2026-09-27T08:30',
+                timeText: '9月27日 8:30 - 17:00',
+                mode: 'signup',
+                deadline: '2026-09-20T12:00',
+                audience: '全校学生，限报 50 人',
+                signupCount: 43,
+                desc: '联合周边社区开展的公益志愿服务：帮助老年人学习使用智能手机、整理社区图书角并完成环境清洁。全天预计服务 8 小时，可录入志愿服务时长。报名成功后请于活动当天提前到场签到。',
+                highlights: ['全天预计服务 8 小时，可录志愿时长', '名额 50 人，报满即止', '需于 8:30 前到场签到、统一出发', '提供午餐与往返交通'],
+                forceEnded: false
+            }
+        ];
+
+        /* ---------- 二、本地存储：全部活动 + 报名状态 ---------- */
+
+        var Storage = {
+            // 读取全部活动；不存在时写入 5 条种子数据（刷新不丢的基础）
+            readActivities: function () {
+                try {
+                    var raw = localStorage.getItem(LS_ACTIVITIES);
+                    if (raw === null) {
+                        var seed = INITIAL_ACTIVITIES.map(function (a) {
+                            return Object.assign({}, a);
+                        });
+                        localStorage.setItem(LS_ACTIVITIES, JSON.stringify(seed));
+                        return seed;
+                    }
+                    var list = JSON.parse(raw);
+                    return Array.isArray(list) ? list : INITIAL_ACTIVITIES.slice();
+                } catch (e) {
+                    return INITIAL_ACTIVITIES.slice();
+                }
+            },
+            writeActivities: function (list) {
+                localStorage.setItem(LS_ACTIVITIES, JSON.stringify(list));
+            },
+            readState: function () {
+                try {
+                    var s = JSON.parse(localStorage.getItem(LS_STATE));
+                    return {
+                        signups: (s && s.signups) || {}, // {活动id: 报名人数}
+                        joined:  (s && s.joined)  || {}  // {活动id: true} 我是否已报名
+                    };
+                } catch (e) {
+                    return { signups: {}, joined: {} };
+                }
+            },
+            writeState: function (s) {
+                localStorage.setItem(LS_STATE, JSON.stringify(s));
+            }
+        };
+
+        // 全局应用状态
+        var state = {
+            activities: Storage.readActivities(), // 页面所有活动均来自 localStorage
+            signup: Storage.readState(),
+            filterStatus: 'all',
+            filterCategory: 'all',
+            keyword: '',
+            sort: 'deadline',
+            currentDetailId: null,
+            detailStatus: null // 详情弹窗当前渲染的状态（用于每秒同步判断）
+        };
+
+        /* ---------- 三、工具函数 ---------- */
+
+        function $(selector) { return document.querySelector(selector); }
+
+        function getAllActivities() { return state.activities; }
+
+        function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+        // '2026-09-24T22:00' -> Date
+        function toDate(iso) { return iso ? new Date(iso) : null; }
+
+        // '2026-09-24T22:00' -> '9月24日(周四) 22:00'
+        function formatDateTime(iso, withWeek) {
+            var d = toDate(iso);
+            if (!d) return '';
+            var weeks = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            var text = (d.getMonth() + 1) + '月' + d.getDate() + '日';
+            if (withWeek) text += '(' + weeks[d.getDay()] + ')';
+            text += ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+            return text;
+        }
+
+        // 实时倒计时文案：距离报名截止：X天X时X分X秒（每秒跳动）
+        function formatRemaining(diff) {
+            if (diff <= 0) return '已截止';
+            var days = Math.floor(diff / 86400000);
+            var hours = Math.floor((diff % 86400000) / 3600000);
+            var mins = Math.floor((diff % 3600000) / 60000);
+            var secs = Math.floor((diff % 60000) / 1000);
+            return '距离报名截止：' + days + '天' + pad(hours) + '时' + pad(mins) + '分' + pad(secs) + '秒';
+        }
+
+        // 实时计算活动状态（不写死，随当前时间变化）
+        function getStatus(activity) {
+            if (activity.forceEnded) return 'ended';
+            var now = Date.now();
+
+            if (activity.mode === 'direct') {
+                var start = toDate(activity.startTime);
+                return start && start.getTime() < now ? 'ended' : 'direct';
+            }
+            var deadline = toDate(activity.deadline);
+            return deadline && deadline.getTime() < now ? 'closed' : 'open';
+        }
+
+        // 报名人数：localStorage 中的实时值优先，否则取活动自带的初始人数
+        function getSignupCount(activity) {
+            var stored = state.signup.signups[activity.id];
+            return typeof stored === 'number' ? stored : (activity.signupCount || 0);
+        }
+
+        function hasJoined(id) { return !!state.signup.joined[id]; }
+
+        // 倒计时文案（渲染时调用；每秒跳动由 tickCountdowns 负责）
+        function getCountdown(activity, status) {
+            var now = Date.now();
+
+            if (status === 'open') {
+                var diff = toDate(activity.deadline).getTime() - now;
+                if (diff <= 0) return { text: '已截止', level: 'closed' };
+                return { text: formatRemaining(diff), level: diff < 86400000 ? 'urgent' : 'normal' };
+            }
+            if (status === 'direct') {
+                var start2 = toDate(activity.startTime);
+                if (!start2) return { text: '欢迎直接参加', level: 'normal' };
+                var today = new Date();
+                var sameDay = start2.getFullYear() === today.getFullYear() &&
+                              start2.getMonth() === today.getMonth() &&
+                              start2.getDate() === today.getDate();
+                if (sameDay) {
+                    return { text: '今天 ' + pad(start2.getHours()) + ':' + pad(start2.getMinutes()) + ' 开始', level: 'urgent' };
+                }
+                var d = Math.floor((start2.getTime() - now) / 86400000);
+                return { text: d >= 1 ? '距开始还有 ' + d + ' 天' : '即将开始', level: 'normal' };
+            }
+            if (status === 'closed') return { text: '已截止', level: 'closed' };
+            return { text: '活动已结束', level: 'closed' };
+        }
+
+        // 转义用户输入，防止破坏 HTML 结构
+        function escapeHtml(str) {
+            return String(str == null ? '' : str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        // Toast 提示
+        var toastTimer = null;
+        function showToast(message, type) {
+            var toast = $('#toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (type ? ' toast-' + type : '');
+            toast.hidden = false;
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () {
+                toast.className = 'toast';
+                setTimeout(function () { toast.hidden = true; }, 250);
+            }, 2400);
+        }
+
+        /* ---------- 四、筛选 / 搜索 / 排序 ---------- */
+
+        function statusMatches(tabKey, activityStatus) {
+            if (tabKey === 'all') return true;
+            if (tabKey === 'closed') return activityStatus === 'closed' || activityStatus === 'ended';
+            return tabKey === activityStatus;
+        }
+
+        function getFilteredActivities() {
+            var kw = state.keyword.trim().toLowerCase();
+            var list = getAllActivities().filter(function (a) {
+                var status = getStatus(a);
+                if (!statusMatches(state.filterStatus, status)) return false;
+                if (state.filterCategory !== 'all' && a.category !== state.filterCategory) return false;
+                if (kw) {
+                    var haystack = [a.title, a.location, a.desc, a.audience, CATEGORIES[a.category].name]
+                        .concat(a.highlights || []).join(' ').toLowerCase();
+                    if (haystack.indexOf(kw) === -1) return false;
+                }
+                return true;
+            });
+
+            list.sort(function (a, b) {
+                var sa = getStatus(a), sb = getStatus(b);
+                if (state.sort === 'hot') return getSignupCount(b) - getSignupCount(a);
+                if (state.sort === 'time') {
+                    var ta = toDate(a.startTime) ? toDate(a.startTime).getTime() : Infinity;
+                    var tb = toDate(b.startTime) ? toDate(b.startTime).getTime() : Infinity;
+                    return ta - tb;
+                }
+                // 默认：可报名（按截止）-> 免报名（按开始）-> 已截止/已结束
+                var rank = { open: 0, direct: 1, closed: 2, ended: 3 };
+                if (rank[sa] !== rank[sb]) return rank[sa] - rank[sb];
+                if (sa === 'open') return toDate(a.deadline).getTime() - toDate(b.deadline).getTime();
+                if (sa === 'direct') return toDate(a.startTime).getTime() - toDate(b.startTime).getTime();
+                return 0;
+            });
+            return list;
+        }
+
+        /* ---------- 五、渲染：统计、筛选器、卡片 ---------- */
+
+        function renderStats() {
+            var all = getAllActivities();
+            var openCount = all.filter(function (a) { return getStatus(a) === 'open'; }).length;
+            var weekLater = Date.now() + 7 * 86400000;
+            var upcoming = all.filter(function (a) {
+                var t = toDate(a.startTime);
+                var s = getStatus(a);
+                return t && t.getTime() >= Date.now() && t.getTime() <= weekLater &&
+                       (s === 'open' || s === 'direct');
+            }).length;
+            var totalSignup = all.reduce(function (sum, a) {
+                return getStatus(a) === 'open' ? sum + getSignupCount(a) : sum;
+            }, 0);
+
+            var cards = [
+                { num: all.length, label: '个活动正在展示' },
+                { num: openCount, label: '个活动可报名' },
+                { num: upcoming, label: '个本周即将开始' },
+                { num: totalSignup, label: '人次已报名参与' }
+            ];
+            $('#heroStats').innerHTML = cards.map(function (c) {
+                return '<div class="stat-card"><div class="stat-num">' + c.num +
+                       '</div><div class="stat-label">' + c.label + '</div></div>';
+            }).join('');
+        }
+
+        function renderFilters() {
+            var all = getAllActivities();
+            var countBy = function (predicate) {
+                return all.filter(function (a) { return predicate(getStatus(a)); }).length;
+            };
+
+            // 状态筛选（数量实时统计）
+            var statusTabs = [
+                { key: 'all',    name: '全部',   count: all.length },
+                { key: 'open',   name: '可报名', count: countBy(function (s) { return s === 'open'; }) },
+                { key: 'direct', name: '免报名', count: countBy(function (s) { return s === 'direct'; }) },
+                { key: 'closed', name: '已截止', count: countBy(function (s) { return s === 'closed' || s === 'ended'; }) }
+            ];
+            $('#statusFilter').innerHTML = statusTabs.map(function (t) {
+                return '<button type="button" class="filter-btn' +
+                       (state.filterStatus === t.key ? ' active' : '') +
+                       '" data-status="' + t.key + '">' + t.name +
+                       '<span class="count">' + t.count + '</span></button>';
+            }).join('');
+
+            // 分类筛选：全部 / 竞赛 / 讲座 / 团队招募 / 志愿活动
+            var catTabs = [{ key: 'all', name: '全部', icon: '✨' }].concat(
+                Object.keys(CATEGORIES).map(function (key) {
+                    return { key: key, name: CATEGORIES[key].name, icon: CATEGORIES[key].icon };
+                })
+            );
+            $('#categoryFilter').innerHTML = catTabs.map(function (t) {
+                var cls = t.key === 'all' ? '' : ' cat-' + t.key;
+                return '<button type="button" class="cat-chip' + cls +
+                       (state.filterCategory === t.key ? ' active' : '') +
+                       '" data-category="' + t.key + '">' + t.icon + ' ' + t.name + '</button>';
+            }).join('');
+        }
+
+        function buildCard(activity) {
+            var status = getStatus(activity);
+            var st = STATUS[status];
+            var countdown = getCountdown(activity, status);
+            var joined = hasJoined(activity.id);
+            var count = getSignupCount(activity);
+            var closed = (status === 'closed' || status === 'ended');
+
+            // 顶部徽章：状态 + 学生发布 + 已报名
+            var badges = '<span class="badge ' + st.cls + '">' + st.name + '</span>';
+            if (activity.userCreated) badges += '<span class="badge badge-user">学生发布</span>';
+            if (joined && status === 'open') badges += '<span class="badge badge-joined">✓ 已报名</span>';
+
+            // 时间行
+            var timeText = activity.timeText || formatDateTime(activity.startTime, true);
+
+            // 报名截止行
+            var deadlineText = activity.mode === 'signup'
+                ? '报名截止 ' + formatDateTime(activity.deadline, true)
+                : '免报名 · 欢迎直接到场';
+
+            // 第三行：优先显示地点，没有地点则显示面向对象（兼容学生发布的活动）
+            var thirdRow = activity.location
+                ? { icon: '📍', text: activity.location }
+                : { icon: '👥', text: activity.audience || '全校学生' };
+
+            // 亮点标签（取前 2 个）
+            var tags = (activity.highlights || []).slice(0, 2).map(function (h) {
+                return '<span class="tag">' + escapeHtml(h) + '</span>';
+            }).join('');
+
+            // 底部操作按钮
+            var actionBtn = '';
+            if (status === 'open') {
+                actionBtn = joined
+                    ? '<button type="button" class="btn-signup is-joined" data-action="toggle-signup" data-id="' + activity.id + '">取消报名</button>'
+                    : '<button type="button" class="btn-signup" data-action="toggle-signup" data-id="' + activity.id + '">立即报名</button>';
+            } else if (status === 'direct') {
+                actionBtn = '<button type="button" class="btn-signup btn-direct" data-action="direct" data-id="' + activity.id + '">直接参加</button>';
+            } else {
+                actionBtn = '<button type="button" class="btn-signup" disabled>' +
+                            (status === 'ended' ? '已结束' : '已截止') + '</button>';
+            }
+
+            // 倒计时行（可报名活动由每秒定时器持续刷新文本）
+            var countdownHtml =
+                '<div class="countdown-line">' +
+                    '<span class="countdown ' +
+                        (countdown.level === 'urgent' ? 'is-urgent' : countdown.level === 'closed' ? 'is-closed' : '') +
+                    '">' + escapeHtml(countdown.text) + '</span>' +
+                '</div>';
+
+            return '<article class="activity-card cat-' + activity.category + (closed ? ' is-closed' : '') + '" data-id="' + activity.id + '">' +
+                '<div class="card-cover">' +
+                    '<span class="card-badges">' + badges + '</span>' +
+                    '<span class="cover-icon" aria-hidden="true">' + CATEGORIES[activity.category].icon + '</span>' +
+                '</div>' +
+                '<div class="card-body">' +
+                    '<h3 class="card-title">' + escapeHtml(activity.title) + '</h3>' +
+                    '<ul class="card-meta">' +
+                        '<li><span class="meta-icon">🕒</span><span>' + escapeHtml(timeText) + '</span></li>' +
+                        '<li><span class="meta-icon">⏰</span><span>' + escapeHtml(deadlineText) + '</span></li>' +
+                        '<li><span class="meta-icon">' + thirdRow.icon + '</span><span>' + escapeHtml(thirdRow.text) + '</span></li>' +
+                    '</ul>' +
+                    '<div class="card-tags">' + tags + '</div>' +
+                    '<div class="card-footer">' +
+                        countdownHtml +
+                        '<div class="footer-row">' +
+                            '<div class="signup-meta">' +
+                                (activity.mode === 'signup'
+                                    ? '🔥 ' + count + ' 人已报名'
+                                    : '🎟️ 免报名 · 欢迎到场') +
+                            '</div>' +
+                            '<div class="card-actions">' +
+                                '<button type="button" class="btn-detail" data-action="detail" data-id="' + activity.id + '">详情</button>' +
+                                actionBtn +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</article>';
+        }
+
+        function renderGrid() {
+            var list = getFilteredActivities();
+            $('#activityGrid').innerHTML = list.map(buildCard).join('');
+            $('#emptyState').hidden = list.length !== 0;
+            $('#resultCount').textContent = '共找到 ' + list.length + ' 个活动';
+        }
+
+        function renderAll() {
+            renderStats();
+            renderFilters();
+            renderGrid();
+        }
+
+        /* ---------- 六、实时倒计时引擎（每秒跳动） ---------- */
+
+        function findActivityById(id) {
+            for (var i = 0; i < state.activities.length; i++) {
+                if (state.activities[i].id === id) return state.activities[i];
+            }
+            return null;
+        }
+
+        function tickCountdowns() {
+            var needRerender = false;
+
+            // 1) 逐卡刷新倒计时文本；跨过截止时间的卡片触发整卡重渲染
+            Array.prototype.forEach.call(document.querySelectorAll('.activity-card'), function (card) {
+                var activity = findActivityById(card.getAttribute('data-id'));
+                if (!activity) return;
+
+                var status = getStatus(activity);
+
+                if (status === 'open') {
+                    var el = card.querySelector('.countdown');
+                    if (!el) return;
+                    var diff = toDate(activity.deadline).getTime() - Date.now();
+                    if (diff <= 0) { needRerender = true; return; } // 刚刚过期 -> 重渲染
+                    el.textContent = formatRemaining(diff);
+                    el.className = 'countdown' + (diff < 86400000 ? ' is-urgent' : '');
+                } else if ((status === 'closed' || status === 'ended') && !card.classList.contains('is-closed')) {
+                    // 卡片渲染时还是可报名，现在已过期 -> 重渲染（置灰 + 按钮禁用）
+                    needRerender = true;
+                }
+            });
+
+            if (needRerender) renderAll();
+
+            // 2) 详情弹窗打开时，同步其倒计时与按钮状态
+            if (!$('#detailModal').hidden && state.currentDetailId) {
+                var act = findActivityById(state.currentDetailId);
+                if (act) {
+                    var st = getStatus(act);
+                    if (st === 'open') {
+                        var d2 = toDate(act.deadline).getTime() - Date.now();
+                        if (d2 <= 0) {
+                            renderDetailFooter(act); // 过期 -> 重渲染底部（按钮禁用）
+                        } else if (state.detailStatus === 'open') {
+                            var cd = $('#detailCountdown');
+                            cd.textContent = formatRemaining(d2);
+                            cd.className = 'countdown' + (d2 < 86400000 ? ' is-urgent' : '');
+                        } else {
+                            renderDetailFooter(act); // 状态从截止恢复为可报名（罕见）-> 重渲染
+                        }
+                    } else if (state.detailStatus !== st) {
+                        renderDetailFooter(act); // 可报名 -> 已截止/已结束 的瞬间
+                    }
+                }
+            }
+        }
+
+        /* ---------- 七、活动详情弹窗 ---------- */
+
+        function openDetail(id) {
+            var activity = findActivityById(id);
+            if (!activity) return;
+            state.currentDetailId = id;
+
+            var status = getStatus(activity);
+            var cat = CATEGORIES[activity.category];
+
+            var cover = $('#detailCover');
+            cover.className = 'detail-cover cat-' + activity.category;
+            $('#detailIcon').textContent = cat.icon;
+            $('#detailBadge').className = 'badge ' + STATUS[status].cls;
+            $('#detailBadge').textContent = STATUS[status].name;
+            $('#detailTitle').textContent = activity.title;
+
+            var timeText = activity.timeText || formatDateTime(activity.startTime, true);
+            var meta = [
+                { label: '活动分类', value: cat.icon + ' ' + cat.name },
+                { label: '面向对象', value: activity.audience || '全校学生' },
+                { label: '活动时间', value: timeText, full: true },
+                { label: '报名截止', value: activity.mode === 'signup' ? formatDateTime(activity.deadline, true) : '无需报名，直接参加' }
+            ];
+            if (activity.location) meta.push({ label: '活动地点', value: activity.location });
+            meta.push({ label: '发布来源', value: activity.userCreated ? '学生自主发布' : '学校官方活动', full: true });
+
+            $('#detailMeta').innerHTML = meta.map(function (m) {
+                return '<li class="' + (m.full ? 'full' : '') + '"><span>' + m.label +
+                       '：</span><strong>' + escapeHtml(m.value) + '</strong></li>';
+            }).join('');
+
+            $('#detailDesc').textContent = activity.desc;
+
+            var highlightsWrap = $('#detailHighlightsWrap');
+            if (activity.highlights && activity.highlights.length) {
+                highlightsWrap.hidden = false;
+                $('#detailHighlights').innerHTML = activity.highlights.map(function (h) {
+                    return '<li>' + escapeHtml(h) + '</li>';
+                }).join('');
+            } else {
+                highlightsWrap.hidden = true;
+            }
+
+            renderDetailFooter(activity);
+            showModal('detailModal');
+        }
+
+        // 底部报名区：每次都实时读取 localStorage 最新状态，避免闭包快照过期
+        function renderDetailFooter(activity) {
+            var status = getStatus(activity);
+            state.detailStatus = status; // 记录当前状态，供每秒同步判断
+            var countdown = getCountdown(activity, status);
+            var joined = hasJoined(activity.id);
+            var btn = $('#detailActionBtn');
+
+            $('#detailSignupCount').textContent = activity.mode === 'signup'
+                ? '🔥 ' + getSignupCount(activity) + ' 人已报名' + (joined ? '（你已报名）' : '')
+                : '🎟️ 本活动无需报名';
+            var cdEl = $('#detailCountdown');
+            cdEl.textContent = countdown.text;
+            cdEl.className = 'countdown ' +
+                (countdown.level === 'urgent' ? 'is-urgent' : countdown.level === 'closed' ? 'is-closed' : '');
+
+            btn.disabled = false;
+            btn.classList.remove('is-joined');
+            if (status === 'open') {
+                if (joined) {
+                    btn.textContent = '取消报名';
+                    btn.classList.add('is-joined');
+                    btn.dataset.mode = 'cancel';
+                } else {
+                    btn.textContent = '立即报名';
+                    btn.dataset.mode = 'signup';
+                }
+            } else if (status === 'direct') {
+                btn.textContent = '我知道了，准时参加';
+                btn.dataset.mode = 'direct';
+            } else {
+                btn.textContent = status === 'ended' ? '活动已结束' : '报名已截止';
+                btn.disabled = true;
+                btn.dataset.mode = 'none';
+            }
+        }
+
+        /* ---------- 八、报名 / 取消报名（写入 localStorage） ---------- */
+
+        function toggleSignup(id) {
+            var activity = findActivityById(id);
+            if (!activity) return;
+            if (getStatus(activity) !== 'open') {
+                showToast('该活动当前不在报名时段内', 'error');
+                return;
+            }
+
+            var joined = hasJoined(id);
+            var currentCount = getSignupCount(activity);
+
+            if (joined) {
+                delete state.signup.joined[id];
+                state.signup.signups[id] = Math.max(0, currentCount - 1);
+                Storage.writeState(state.signup);
+                showToast('已取消「' + activity.title + '」的报名', 'success');
+            } else {
+                var ok = window.confirm('确认报名参加「' + activity.title + '」吗？\n报名后请按时参加，如需退出可随时取消。');
+                if (!ok) return;
+                state.signup.joined[id] = true;
+                state.signup.signups[id] = currentCount + 1;
+                Storage.writeState(state.signup);
+                showToast('报名成功！可在活动卡片中查看状态 🎉', 'success');
+            }
+
+            renderAll();
+            if (state.currentDetailId === id && !$('#detailModal').hidden) {
+                renderDetailFooter(activity);
+            }
+        }
+
+        /* ---------- 九、学生发布活动（5 字段 + 非空校验） ---------- */
+
+        var form = $('#publishForm');
+
+        function openPublishModal() {
+            form.reset();
+            clearFormErrors();
+            showModal('publishModal');
+            setTimeout(function () { $('#fTitle').focus(); }, 200);
+        }
+
+        function setFieldError(fieldId, message) {
+            var field = $('#' + fieldId);
+            var row = field.closest('.form-row');
+            row.classList.add('has-error');
+            row.querySelector('.field-error').textContent = message || '';
+        }
+
+        function clearFormErrors() {
+            form.querySelectorAll('.form-row.has-error').forEach(function (row) {
+                row.classList.remove('has-error');
+            });
+            form.querySelectorAll('.field-error').forEach(function (el) { el.textContent = ''; });
+        }
+
+        // 简单非空校验：5 个字段输入均不能为空
+        function validateForm() {
+            clearFormErrors();
+            var errors = [];
+            var data = {
+                title:    $('#fTitle').value.trim(),
+                type:     $('#fType').value,
+                time:     $('#fTime').value,
+                deadline: $('#fDeadline').value,
+                desc:     $('#fDesc').value.trim()
+            };
+
+            if (data.title === '')    errors.push(['fTitle', '活动名称不能为空']);
+            if (data.type === '')     errors.push(['fType', '请选择活动类型']);
+            if (data.time === '')     errors.push(['fTime', '请选择活动时间']);
+            if (data.deadline === '') errors.push(['fDeadline', '请选择报名截止时间']);
+            if (data.desc === '')     errors.push(['fDesc', '活动简介不能为空']);
+
+            errors.forEach(function (pair) { setFieldError(pair[0], pair[1]); });
+            return errors.length === 0;
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!validateForm()) {
+                var firstError = form.querySelector('.form-row.has-error input, .form-row.has-error select, .form-row.has-error textarea');
+                if (firstError) firstError.focus();
+                showToast('请补全标红的必填信息', 'error');
+                return;
+            }
+
+            var type = $('#fType').value;
+            var activity = {
+                id: 'user-' + Date.now(),
+                title: $('#fTitle').value.trim(),
+                category: type,
+                location: null,                 // 表单未收集，详情页自动隐藏该行
+                startTime: $('#fTime').value,   // 活动时间
+                timeText: null,
+                mode: 'signup',
+                deadline: $('#fDeadline').value, // 报名截止时间
+                audience: '全校学生',
+                signupCount: 0,
+                desc: $('#fDesc').value.trim(),  // 活动简介
+                highlights: [CATEGORIES[type].name + '类活动', '学生自主发布活动'],
+                forceEnded: false,
+                userCreated: true
+            };
+
+            // 新活动加入列表并整体写回 localStorage（刷新不丢）
+            state.activities.unshift(activity);
+            Storage.writeActivities(state.activities);
+
+            // 重置筛选，保证新活动立即可见
+            state.filterStatus = 'all';
+            state.filterCategory = 'all';
+            state.keyword = '';
+            $('#searchInput').value = '';
+            $('#sortSelect').value = 'deadline';
+            state.sort = 'deadline';
+
+            hideModal('publishModal');
+            renderAll();
+            showToast('活动发布成功，已展示在活动大厅 🎉', 'success');
+
+            setTimeout(function () {
+                var cards = document.querySelectorAll('.activity-card');
+                if (cards.length) cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        });
+
+        // 用户重新输入时清除该字段的红色错误提示
+        form.addEventListener('input', function (e) {
+            var row = e.target.closest && e.target.closest('.form-row');
+            if (row && row.classList.contains('has-error')) {
+                row.classList.remove('has-error');
+                var err = row.querySelector('.field-error');
+                if (err) err.textContent = '';
+            }
+        });
+        form.addEventListener('change', function (e) {
+            var row = e.target.closest && e.target.closest('.form-row');
+            if (row && row.classList.contains('has-error')) {
+                row.classList.remove('has-error');
+                var err = row.querySelector('.field-error');
+                if (err) err.textContent = '';
+            }
+        });
+
+        /* ---------- 十、弹窗通用控制 ---------- */
+
+        var lastFocused = null;
+        function showModal(id) {
+            lastFocused = document.activeElement;
+            $('#' + id).hidden = false;
+            document.body.style.overflow = 'hidden';
+        }
+        function hideModal(id) {
+            if (!id) return;
+            $('#' + id).hidden = true;
+            document.body.style.overflow = '';
+            if (id === 'detailModal') { state.currentDetailId = null; state.detailStatus = null; }
+            if (lastFocused && document.body.contains(lastFocused)) lastFocused.focus();
+        }
+
+        /* ---- Bug 修复：右上角 ✕ 关闭按钮直接绑定 click 事件，点击即可关闭所在弹窗 ---- */
+        document.querySelectorAll('.modal-close').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation(); // 避免冒泡到遮罩层重复触发
+                var mask = btn.closest('.modal-mask');
+                hideModal(btn.getAttribute('data-close') || (mask ? mask.id : null));
+            });
+        });
+
+        // 其余带 data-close 的关闭入口（如“取消”按钮）
+        document.querySelectorAll('[data-close]').forEach(function (btn) {
+            if (btn.classList.contains('modal-close')) return; // ✕ 已单独绑定，避免重复
+            btn.addEventListener('click', function () { hideModal(btn.getAttribute('data-close')); });
+        });
+
+        // 点击遮罩空白处关闭
+        document.querySelectorAll('.modal-mask').forEach(function (mask) {
+            mask.addEventListener('click', function (e) {
+                if (e.target === mask) hideModal(mask.id);
+            });
+        });
+        // Esc 关闭最上层弹窗
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            if (!$('#publishModal').hidden) hideModal('publishModal');
+            else if (!$('#detailModal').hidden) hideModal('detailModal');
+        });
+
+        /* ---------- 十一、事件绑定 ---------- */
+
+        // 卡片区域事件委托（点击时实时读取最新报名状态）
+        $('#activityGrid').addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            var action = btn.dataset.action;
+            var id = btn.dataset.id;
+
+            if (action === 'detail') {
+                openDetail(id);
+            } else if (action === 'toggle-signup') {
+                toggleSignup(id);
+            } else if (action === 'direct') {
+                var activity = findActivityById(id);
+                if (activity) showToast('「' + activity.title + '」无需报名，请按时间直接到场参加 🙌', 'success');
+            }
+        });
+
+        // 详情弹窗底部按钮
+        $('#detailActionBtn').addEventListener('click', function () {
+            if (!state.currentDetailId) return;
+            var mode = this.dataset.mode;
+            if (mode === 'signup' || mode === 'cancel') {
+                toggleSignup(state.currentDetailId);
+            } else if (mode === 'direct') {
+                var activity = findActivityById(state.currentDetailId);
+                hideModal('detailModal');
+                if (activity) showToast('「' + activity.title + '」无需报名，请按时间直接到场参加 🙌', 'success');
+            }
+        });
+
+        // 状态筛选
+        $('#statusFilter').addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-status]');
+            if (!btn) return;
+            state.filterStatus = btn.dataset.status;
+            renderFilters();
+            renderGrid();
+        });
+
+        // 分类筛选
+        $('#categoryFilter').addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-category]');
+            if (!btn) return;
+            state.filterCategory = btn.dataset.category;
+            renderFilters();
+            renderGrid();
+        });
+
+        // 搜索
+        $('#searchInput').addEventListener('input', function (e) {
+            state.keyword = e.target.value;
+            renderGrid();
+        });
+
+        // 排序
+        $('#sortSelect').addEventListener('change', function (e) {
+            state.sort = e.target.value;
+            renderGrid();
+        });
+
+        // 发布入口
+        ['headerPublishBtn', 'heroPublishBtn', 'footerPublishBtn', 'emptyPublishBtn'].forEach(function (id) {
+            $('#' + id).addEventListener('click', openPublishModal);
+        });
+
+        // 恢复初始演示数据（清空 localStorage 并重新写入种子）
+        $('#resetBtn').addEventListener('click', function () {
+            var ok = window.confirm('将清空你发布的活动与所有报名记录，恢复为 5 条初始演示数据，确定继续吗？');
+            if (!ok) return;
+            localStorage.removeItem(LS_ACTIVITIES);
+            localStorage.removeItem(LS_STATE);
+            state.activities = Storage.readActivities(); // 重新生成 5 条种子
+            state.signup = { signups: {}, joined: {} };
+            state.filterStatus = 'all';
+            state.filterCategory = 'all';
+            state.keyword = '';
+            $('#searchInput').value = '';
+            renderAll();
+            showToast('已恢复初始演示数据', 'success');
+        });
+
+        /* ---------- 十二、启动 ---------- */
+        renderAll();
+        tickCountdowns();                    // 立即刷新一次倒计时
+        setInterval(tickCountdowns, 1000);   // 此后每秒跳动更新
+    })();
+    </script>
+</body>
+</html>
+
