@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新生校园活动广场 · 竞赛 / 讲座 / 招募 / 志愿</title>
+    <meta name="description" content="面向大学新生的校园活动信息展示平台：竞赛、讲座、项目招募、志愿活动一网打尽，支持在线报名与自主发布活动。">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ========== 顶部导航 ========== -->
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="brand" href="#top" aria-label="返回首页">
+                <span class="brand-logo" aria-hidden="true">🎓</span>
+                <span class="brand-text">
+                    <strong>新生活动广场</strong>
+                    <small>Campus Activity Hub</small>
+                </span>
+            </a>
+            <nav class="site-nav" aria-label="主导航">
+                <a href="#activities">活动大厅</a>
+                <a href="#publish-cta">发布活动</a>
+            </nav>
+            <button class="btn btn-primary btn-sm header-publish" id="headerPublishBtn" type="button">＋ 发布活动</button>
+        </div>
+    </header>
+
+    <main id="top">
+        <!-- ========== Hero 横幅 ========== -->
+        <section class="hero">
+            <div class="container hero-inner">
+                <div class="hero-copy">
+                    <span class="hero-tag">👋 欢迎新同学</span>
+                    <h1>发现你的<span>第一场校园活动</span></h1>
+                    <p>竞赛训练营、名师讲座、创新创业项目、公益志愿服务……<br>在这里找到同频的伙伴，让大学生活从热爱开始。</p>
+                    <div class="hero-actions">
+                        <a class="btn btn-primary btn-lg" href="#activities">浏览活动</a>
+                        <button class="btn btn-ghost btn-lg" id="heroPublishBtn" type="button">我要发布活动</button>
+                    </div>
+                </div>
+                <div class="hero-stats" id="heroStats" aria-live="polite">
+                    <!-- 统计数字由 JS 渲染 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== 活动大厅 ========== -->
+        <section class="section" id="activities">
+            <div class="container">
+                <div class="section-head">
+                    <h2>活动大厅</h2>
+                    <p>实时区分<strong class="text-open">可报名</strong>与<strong class="text-closed">已截止</strong>活动，不错过每个机会</p>
+                </div>
+
+                <!-- 搜索 + 状态筛选 -->
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span aria-hidden="true">🔍</span>
+                        <input type="search" id="searchInput" placeholder="搜索活动名称、地点或关键词…" aria-label="搜索活动">
+                    </div>
+                    <div class="filter-group" id="statusFilter" role="tablist" aria-label="按报名状态筛选">
+                        <!-- 状态筛选按钮由 JS 渲染 -->
+                    </div>
+                </div>
+
+                <!-- 分类筛选 -->
+                <div class="category-bar" id="categoryFilter" aria-label="按活动分类筛选">
+                    <!-- 分类按钮由 JS 渲染 -->
+                </div>
+
+                <!-- 排序 -->
+                <div class="sort-bar">
+                    <label for="sortSelect">排序：</label>
+                    <select id="sortSelect">
+                        <option value="deadline">按报名截止时间（最紧迫优先）</option>
+                        <option value="time">按活动开始时间（最近优先）</option>
+                        <option value="hot">按报名人数（最热门优先）</option>
+                    </select>
+                    <span class="result-count" id="resultCount"></span>
+                </div>
+
+                <!-- 活动卡片网格 -->
+                <div class="activity-grid" id="activityGrid">
+                    <!-- 活动卡片由 JS 渲染 -->
+                </div>
+
+                <!-- 空状态 -->
+                <div class="empty-state" id="emptyState" hidden>
+                    <div class="empty-icon" aria-hidden="true">🗂️</div>
+                    <h3>没有找到符合条件的活动</h3>
+                    <p>换个关键词或筛选条件试试，也可以自己发布一个活动。</p>
+                    <button class="btn btn-primary" id="emptyPublishBtn" type="button">＋ 发布新活动</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== 发布活动引导 ========== -->
+        <section class="publish-cta" id="publish-cta">
+            <div class="container cta-inner">
+                <div class="cta-copy">
+                    <h2>社团 / 组织 / 同学，都能在这里发布活动</h2>
+                    <p>填写活动名称、时间、地点与报名说明，发布后即刻展示在活动大厅。</p>
+                </div>
+                <button class="btn btn-light btn-lg" id="footerPublishBtn" type="button">＋ 立即发布活动</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========== 页脚 ========== -->
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <p>🎓 新生活动广场 · 纯前端单页面演示项目（HTML + CSS + JavaScript）</p>
+            <p>活动与报名数据仅保存在本机浏览器（localStorage），<button class="link-btn" id="resetBtn" type="button">恢复初始演示数据</button></p>
+        </div>
+    </footer>
+
+    <!-- ========== 活动详情弹窗 ========== -->
+    <div class="modal-mask" id="detailModal" hidden>
+        <div class="modal modal-detail" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+            <button class="modal-close" data-close="detailModal" aria-label="关闭详情">✕</button>
+            <div class="detail-cover" id="detailCover">
+                <span class="detail-cover-icon" id="detailIcon"></span>
+                <span class="detail-badge" id="detailBadge"></span>
+            </div>
+            <div class="modal-body">
+                <h3 id="detailTitle"></h3>
+                <ul class="detail-meta" id="detailMeta"></ul>
+                <div class="detail-section">
+                    <h4>活动介绍</h4>
+                    <p id="detailDesc"></p>
+                </div>
+                <div class="detail-section" id="detailHighlightsWrap">
+                    <h4>活动亮点 / 备注</h4>
+                    <ul class="detail-highlights" id="detailHighlights"></ul>
+                </div>
+                <div class="detail-footer">
+                    <div class="detail-signup-info">
+                        <span class="signup-count" id="detailSignupCount"></span>
+                        <span class="countdown" id="detailCountdown"></span>
+                    </div>
+                    <button class="btn btn-primary btn-lg" id="detailActionBtn" type="button"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 发布活动弹窗 ========== -->
+    <div class="modal-mask" id="publishModal" hidden>
+        <div class="modal modal-publish" role="dialog" aria-modal="true" aria-labelledby="publishFormTitle">
+            <button class="modal-close" data-close="publishModal" aria-label="关闭发布窗口">✕</button>
+            <div class="modal-body">
+                <h3 id="publishFormTitle">发布新活动</h3>
+                <p class="form-tip">带 <em>*</em> 为必填项，发布后将立即出现在活动大厅。</p>
+                <form id="publishForm" novalidate>
+                    <div class="form-row">
+                        <label for="fTitle">活动名称<em>*</em></label>
+                        <input type="text" id="fTitle" maxlength="40" placeholder="例如：校园歌手大赛报名">
+                        <small class="field-error" data-error-for="fTitle"></small>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-row">
+                            <label for="fCategory">活动分类<em>*</em></label>
+                            <select id="fCategory">
+                                <option value="">请选择分类</option>
+                                <option value="competition">竞赛</option>
+                                <option value="lecture">讲座</option>
+                                <option value="project">项目招募</option>
+                                <option value="volunteer">志愿活动</option>
+                            </select>
+                            <small class="field-error" data-error-for="fCategory"></small>
+                        </div>
+                        <div class="form-row">
+                            <label for="fLocation">活动地点<em>*</em></label>
+                            <input type="text" id="fLocation" maxlength="30" placeholder="例如：学生活动中心 301">
+                            <small class="field-error" data-error-for="fLocation"></small>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-row">
+                            <label for="fStartTime">活动开始时间<em>*</em></label>
+                            <input type="datetime-local" id="fStartTime">
+                            <small class="field-error" data-error-for="fStartTime"></small>
+                        </div>
+                        <div class="form-row">
+                            <label for="fEndTime">活动结束时间（选填）</label>
+                            <input type="datetime-local" id="fEndTime">
+                            <small class="field-error" data-error-for="fEndTime"></small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="fNoSignup">报名方式<em>*</em></label>
+                        <div class="radio-inline">
+                            <label><input type="radio" name="signupMode" value="signup" checked> 需要在线报名</label>
+                            <label><input type="radio" name="signupMode" value="direct"> 无需报名，直接参加</label>
+                        </div>
+                    </div>
+
+                    <div class="form-row" id="deadlineRow">
+                        <label for="fDeadline">报名截止时间<em>*</em></label>
+                        <input type="datetime-local" id="fDeadline">
+                        <small class="field-error" data-error-for="fDeadline"></small>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="fAudience">面向对象（选填）</label>
+                        <input type="text" id="fAudience" maxlength="30" placeholder="例如：全校本科生 / 计算机学院">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="fDesc">活动介绍<em>*</em></label>
+                        <textarea id="fDesc" rows="4" maxlength="300" placeholder="简要介绍活动内容、收获与注意事项（最多300字）"></textarea>
+                        <small class="field-error" data-error-for="fDesc"></small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn btn-ghost" type="button" data-close="publishModal">取消</button>
+                        <button class="btn btn-primary" type="submit">确认发布</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局提示 Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
